@@ -84,9 +84,9 @@ async function main() {
     if (useCdn) {
         // IMPORTANT: Replace 'yourUser/my-assets' with your actual GitHub username and repository name
         // And ensure the branch is correct (e.g., 'main' or 'master')
-        const cdnBase = "https://cdn.jsdelivr.net/gh/yourUser/my-assets@main";
-        cssLink = `<link rel="stylesheet" href="${cdnBase}/css/style.css" />`;
-        jsMainScript = `<script type="module" src="${cdnBase}/js/main.js"></script>`;
+        const cdnBase = "https://cdn.jsdelivr.net/gh/avionics18/md-to-html-automation@v1.0.0";
+        cssLink = `<link rel="stylesheet" href="${cdnBase}/BASE/assets/css/style.min.css" />`;
+        jsMainScript = `<script type="module" async="true" crossorigin="anonymous" src="${cdnBase}/BASE/assets/js/main.min.js"></script>`;
     } else {
         cssLink = `<link rel="stylesheet" href="./assets/css/style.css" />`;
         jsMainScript = `<script type="module" src="./assets/js/main.js"></script>`;
