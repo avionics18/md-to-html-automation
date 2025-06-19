@@ -1,0 +1,100 @@
+body {
+    font-family: "Inter", sans-serif;
+}
+
+img {
+    max-width: 100%;
+}
+
+code {
+    font-family: "JetBrains Mono";
+}
+
+blockquote {
+    background-color: var(--bs-secondary-bg-subtle);
+    border-left: 5px solid var(--bs-secondary);
+    padding: 1rem;
+}
+
+blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+table {
+    --bs-table-color-type: initial;
+    --bs-table-bg-type: initial;
+    --bs-table-color-state: initial;
+    --bs-table-bg-state: initial;
+    --bs-table-color: var(--bs-emphasis-color);
+    --bs-table-bg: var(--bs-body-bg);
+    --bs-table-border-color: var(--bs-border-color);
+    --bs-table-accent-bg: transparent;
+    --bs-table-striped-color: var(--bs-emphasis-color);
+    --bs-table-striped-bg: rgba(var(--bs-emphasis-color-rgb), 0.05);
+    --bs-table-active-color: var(--bs-emphasis-color);
+    --bs-table-active-bg: rgba(var(--bs-emphasis-color-rgb), 0.1);
+    --bs-table-hover-color: var(--bs-emphasis-color);
+    --bs-table-hover-bg: rgba(var(--bs-emphasis-color-rgb), 0.075);
+    width: 100%;
+    margin-bottom: 1rem;
+    vertical-align: top;
+    border-color: var(--bs-table-border-color);
+}
+table > :not(caption) > * > * {
+    padding: 0.5rem 0.5rem;
+    color: var(--bs-table-color-state, var(--bs-table-color-type, var(--bs-table-color)));
+    background-color: var(--bs-table-bg);
+    border-bottom-width: var(--bs-border-width);
+    box-shadow: inset 0 0 0 9999px var(--bs-table-bg-state, var(--bs-table-bg-type, var(--bs-table-accent-bg)));
+}
+table > tbody {
+    vertical-align: inherit;
+}
+table > thead {
+    vertical-align: bottom;
+}
+
+/* Super Heading */
+.super-heading {
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+/* Content */
+#content h1 {
+    font-weight: 900;
+}
+
+#content h1,
+#content h2,
+#content h3 {
+    font-weight: 600;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+#content h1,
+#content h2,
+#content h3,
+#content h4,
+#content h5 {
+    padding: 1rem 0;
+    margin-bottom: 1.5rem;
+}
+
+#content img {
+    border: 1px solid var(--bs-border-color);
+}
+
+/* toc - Table of Contents */
+@media screen and (min-width: 992px) {
+    #toc {
+        font-size: 14px;
+        max-height: 600px;
+        overflow: auto;
+    }
+}
+
+/* Highlight Js Styles */
+pre code.hljs {
+    border-radius: var(--bs-border-radius);
+    padding: 1rem;
+}
