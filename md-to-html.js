@@ -4,111 +4,90 @@ const fs = require('fs');
 const path = require('path');
 const process = require('process');
 const { execSync } = require('child_process');
-const readline = require('readline'); // Import the readline module
+const readline = require('readline');
 
-// Helper function for prompting
+// Helper function for generating query
+// @params:
+//     query | String
+//     defaultValue | String
 function askQuestion(query, defaultValue) {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  return new Promise(resolve => {
+    rl.question(`${query} (${defaultValue}): `, answer => {
+      rl.close();
+      resolve(answer.trim() === '' ? defaultValue : answer.trim());
     });
-
-    return new Promise(resolve => {
-        rl.question(`${query} (${defaultValue}) `, answer => {
-            rl.close();
-            resolve(answer.trim() === '' ? defaultValue : answer.trim());
-        });
-    });
+  });
 }
 
-// ----------- Main Script -----------
-
+// ------------------------ Main function ------------------------
 async function main() {
-    let inputDir = process.argv[2];
-    let outputDir = process.argv[3];
-    let useCdnCli = process.argv[4]; // New argument for CDN choice (true/false)
-    let assetsDirCli = process.argv[5]; // Shifted argument
-    let superHeading = process.argv[6]; // Shifted argument
+  let inputDir = process.argv[2]; // path to input directory
+  let outputDir = process.argv[3]; // path to output directory
+  let useCdnCli = process.argv[4]; // yes or no for using cdn
+  let assetsDirCli = process.argv[5]; // path to assets directory if not using cdn
+  let superHeading = process.argv[6]; // super heading for your notes
 
-    console.log("\n--- Markdown to HTML Converter Setup ---");
+  console.log("\n--- Markdown to HTML Converter Setup ---");
 
-    if (!inputDir) {
-        inputDir = await askQuestion('Enter input directory for Markdown files', '.');
-    }
-    inputDir = inputDir || '.'; // Ensure default if user just presses enter
+  // Queries it will ask if you don't pass command line arguments
+  // If you pass, it will ask the remaining questions only. Amazing!
+  if (!inputDir) inputDir = await askQuestion('Enter input directory for Markdown files', '.');
+  if (!outputDir) outputDir = await askQuestion('Enter output directory for HTML files', inputDir);
 
-    if (!outputDir) {
-        outputDir = await askQuestion(`Enter output directory for HTML files`, inputDir);
-    }
-    outputDir = outputDir || inputDir; // Ensure default if user just presses enter
+  let useCdn;
+  if (useCdnCli === undefined) {
+    const cdnChoice = await askQuestion('Use CDN for custom CSS/JS (yes/no)?', 'yes');
+    useCdn = cdnChoice.toLowerCase() === 'yes' || cdnChoice.toLowerCase() === 'y';
+  } else {
+    useCdn = useCdnCli.toLowerCase() === 'true';
+  }
 
-    let useCdn;
-    if (useCdnCli === undefined) { // If not provided via CLI
-        const cdnChoice = await askQuestion('Use CDN for custom CSS/JS (yes/no)?', 'yes');
-        useCdn = cdnChoice.toLowerCase() === 'yes' || cdnChoice.toLowerCase() === 'y';
+  // it will ask for path to assets directory only if
+  // you are not using cdn links
+  let assetsDir = '';
+  if (!useCdn) {
+    if (!assetsDirCli) {
+      assetsDir = await askQuestion('Enter path to assets directory (e.g., ./BASE/assets)', './BASE/assets');
     } else {
-        useCdn = useCdnCli.toLowerCase() === 'true';
+      assetsDir = assetsDirCli;
     }
+  }
 
-    let assetsDir = '';
-    if (!useCdn) { // Only ask for assets path if not using CDN
-        if (!assetsDirCli) {
-            assetsDir = await askQuestion('Enter path to assets directory (e.g., ./BASE/assets)', './BASE/assets');
-        } else {
-            assetsDir = assetsDirCli;
-        }
+  if (!superHeading) superHeading = await askQuestion('Enter super heading for your pages', 'Notes');
+
+  console.log("\n--- Starting Conversion ---");
+  console.log(`Input Directory: ${inputDir}`);
+  console.log(`Output Directory: ${outputDir}`);
+  console.log(`Use Custom CDN for style.css/main.js: ${useCdn}`);
+  if (!useCdn) console.log(`Assets Directory (local): ${assetsDir}`);
+  console.log(`Super Heading: ${superHeading}`);
+  console.log("---------------------------\n");
+
+  let cssLink, jsMainScript;
+
+  if (useCdn) {
+    const cdnBase = "https://cdn.jsdelivr.net/gh/avionics18/md-to-html-automation@v1.0.1";
+    cssLink = `<link rel="stylesheet" href="${cdnBase}/BASE/assets/css/style.min.css" />`;
+    jsMainScript = `<script async="true" crossorigin="anonymous" src="${cdnBase}/BASE/assets/js/main.min.js"></script>`;
+  } else {
+    cssLink = `<link rel="stylesheet" href="./assets/css/style.css" />`;
+    jsMainScript = `<script src="./assets/js/main.js"></script>`;
+
+    if (!assetsDir || (!fs.existsSync(assetsDir) || !fs.lstatSync(assetsDir).isDirectory())) {
+      console.error(`Error: Local assets directory '${assetsDir}' not found or is not a directory.`);
+      process.exit(1);
     }
-    // No default for assetsDir if not provided and not using CDN, as it's required in that case.
-    // If assetsDir is still empty here and useCdn is false, it means the user didn't provide it
-    // and it was prompted but they left it blank. We should ideally validate this later.
+  }
 
-    if (!superHeading) {
-        superHeading = await askQuestion('Enter super heading for your pages', 'Notes');
-    }
-    superHeading = superHeading || 'Notes'; // Ensure default if user just presses enter
-
-    console.log("\n--- Starting Conversion ---");
-    console.log(`Input Directory: ${inputDir}`);
-    console.log(`Output Directory: ${outputDir}`);
-    console.log(`Use Custom CDN for style.css/main.js: ${useCdn}`);
-    if (!useCdn) {
-        console.log(`Assets Directory (local): ${assetsDir || 'Not specified'}`); // Display if not using CDN
-    }
-    console.log(`Super Heading: ${superHeading}`);
-    console.log("---------------------------\n");
-
-    // Pre-calculate CSS and JS links based on CDN choice
-    let cssLink;
-    let jsMainScript;
-
-    if (useCdn) {
-        // IMPORTANT: Replace 'yourUser/my-assets' with your actual GitHub username and repository name
-        // And ensure the branch is correct (e.g., 'main' or 'master')
-        const cdnBase = "https://cdn.jsdelivr.net/gh/avionics18/md-to-html-automation@v1.0.0";
-        cssLink = `<link rel="stylesheet" href="${cdnBase}/BASE/assets/css/style.min.css" />`;
-        jsMainScript = `<script type="module" async="true" crossorigin="anonymous" src="${cdnBase}/BASE/assets/js/main.min.js"></script>`;
-    } else {
-        cssLink = `<link rel="stylesheet" href="./assets/css/style.css" />`;
-        jsMainScript = `<script type="module" src="./assets/js/main.js"></script>`;
-
-        // Validate assetsDir if local assets are chosen
-        if (!assetsDir || (!fs.existsSync(assetsDir) || !fs.lstatSync(assetsDir).isDirectory())) {
-            console.error(`Error: Local assets directory '${assetsDir}' not found or is not a directory. Please provide a valid path or choose to use CDN.`);
-            process.exit(1);
-        }
-    }
-
-
-    // HTML_START and HTML_END are now functions that take the pre-calculated links
-    // Highlight.js CDN links are now back as static parts of HTML_END
-    const HTML_START = (title, superHeading, cssLink) => `<!DOCTYPE html>
+  const HTML_START = (title, superHeading, cssLink) => `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" integrity="sha512-rO+olRTkcf304DQBxSWxln8JXCzTHlKnIdnMUwYvQa9/Jd4cQaNkItIUj6Z4nvW1dqK0SKXLbn9h4KwZTNtAyw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   ${cssLink}
 </head>
 <body>
@@ -141,7 +120,7 @@ async function main() {
             <div id="content" class="card-body p-lg-4">
 `;
 
-    const HTML_END = (jsMainScript) => `
+  const HTML_END = (jsMainScript) => `
             </div>
           </div>
         </div>
@@ -149,7 +128,7 @@ async function main() {
     </div>
   </main>
   ${jsMainScript}
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" integrity="sha512-EBLzUL8XLl+va/zAsmXwS7Z2B1F9HUHkZwyS/VKwh3S7T/U0nF4BaU29EP/ZSf6zgiIxYAnKLu6bJ8dqpmX5uw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/bash.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/html.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/css.min.js"></script>
@@ -159,104 +138,106 @@ async function main() {
 </body>
 </html>`;
 
+  // checks if input directory exists or if it is a directory
+  // if not stops the process then an there. But that will not
+  // happen, as default argument is "." current folder
+  if (!fs.existsSync(inputDir) || !fs.lstatSync(inputDir).isDirectory()) {
+    console.error(`Error: Directory '${inputDir}' does not exist.`);
+    process.exit(1);
+  }
 
-    // Directory existence checks and asset copying
-    if (!fs.existsSync(inputDir) || !fs.lstatSync(inputDir).isDirectory()) {
-        console.error(`Error: Directory '${inputDir}' does not exist.`);
-        process.exit(1);
+  // checks if output directory exists, if not create one
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+    console.log(`Created output directory: ${outputDir}`);
+  }
+
+  // if not using cdn, then copy the css/ and js/ folder form
+  // assets directory to the output directory.
+  if (!useCdn) {
+    const cssSrc = path.join(assetsDir, 'css');
+    const jsSrc = path.join(assetsDir, 'js');
+    const cssDest = path.join(outputDir, 'assets/css');
+    const jsDest = path.join(outputDir, 'assets/js');
+
+    // copy the css files only if css directory
+    // exists in the assets directory
+    if (fs.existsSync(cssSrc)) {
+      fs.mkdirSync(path.dirname(cssDest), { recursive: true });
+      fs.cpSync(cssSrc, cssDest, { recursive: true });
+    }
+    // copy the js files only if js directory
+    // exists in the assets directory
+    if (fs.existsSync(jsSrc)) {
+      fs.mkdirSync(path.dirname(jsDest), { recursive: true });
+      fs.cpSync(jsSrc, jsDest, { recursive: true });
     }
 
-    if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
-        console.log(`Created output directory: ${outputDir}`);
+    console.log(`Copied 'css' and 'js' folders to: ${path.join(outputDir, 'assets')}`);
+  }
+
+  // if output directory is different than input directory
+  // then also copy the imgs/ folder to the output directory.
+  if (outputDir !== inputDir) {
+    const imgSrc = path.join(inputDir, 'imgs');
+    const imgDest = path.join(outputDir, 'imgs');
+    if (fs.existsSync(imgSrc)) {
+      fs.cpSync(imgSrc, imgDest, { recursive: true });
+      console.log(`Copied 'imgs' folder to: ${imgDest}`);
+    } else {
+      console.log("No 'imgs' folder found in input directory.");
     }
+  }
 
-    // Copy assets folder only if NOT using CDN
-    if (!useCdn) {
-        const assetsSrc = path.resolve(assetsDir); // Resolve to an absolute path
-        const assetsDest = path.join(outputDir, 'assets');
-        if (fs.existsSync(assetsSrc) && fs.lstatSync(assetsSrc).isDirectory()) {
-            fs.cpSync(assetsSrc, assetsDest, { recursive: true });
-            console.log(`Copied assets from '${assetsSrc}' to: ${assetsDest}`);
-        } else {
-            // This error should already be caught by the earlier validation, but good to have a fallback.
-            console.error(`Error: Local assets directory '${assetsSrc}' not found or is not a directory. Cannot proceed without assets if CDN is not used.`);
-            process.exit(1);
-        }
+  // indexLinks array for storing the links to all the files
+  // that have been converted in the input directory, which
+  // will be used for index.html page
+  const indexLinks = [];
+
+  // Main Task:
+  // When everything is ok. Now convert all the markdown files
+  // in the input directory to output directory.
+  // Also add the links to converted files into indexLinks
+  fs.readdirSync(inputDir).forEach(file => {
+    if (file.endsWith('.md')) {
+      const filePath = path.join(inputDir, file);
+      const baseName = path.basename(file, '.md');
+      const tempFile = path.join(outputDir, `${baseName}_temp.html`);
+      const outputFile = path.join(outputDir, `${baseName}.html`);
+
+      const rawContent = fs.readFileSync(filePath, 'utf8');
+      const titleMatch = rawContent.match(/^#\s+(.+)/m);
+      const title = titleMatch ? titleMatch[1].trim() : baseName;
+
+      try {
+        execSync(`marked -o "${tempFile}" "${filePath}"`);
+      } catch (err) {
+        console.error(`Failed to convert ${filePath} with marked. Error: ${err.message}`);
+        return;
+      }
+
+      const htmlContent = fs.readFileSync(tempFile, 'utf8');
+      fs.unlinkSync(tempFile);
+
+      const finalHTML = `${HTML_START(title, superHeading, cssLink)}${htmlContent}${HTML_END(jsMainScript)}`;
+      fs.writeFileSync(outputFile, finalHTML, 'utf8');
+
+      console.log(`Converted ${file} -> ${outputFile}`);
+      indexLinks.push(`<li class="list-group-item"><a href="./${baseName}.html" class="text-decoration-none">${title}</a></li>`);
     }
+  });
 
-    // Copy imgs folder if applicable (existing logic, still relevant regardless of CDN)
-    if (outputDir !== inputDir) {
-        const imgSrc = path.join(inputDir, 'imgs');
-        const imgDest = path.join(outputDir, 'imgs');
-        if (fs.existsSync(imgSrc)) {
-            fs.cpSync(imgSrc, imgDest, { recursive: true });
-            console.log(`Copied 'imgs' folder to: ${imgDest}`);
-        } else {
-            console.log("No 'imgs' folder found in input directory.");
-        }
-    }
+  // finally generating index.html page using the indexLinks array
+  // containing the links to all the pages converted.
+  const indexHTML = `${HTML_START(superHeading, superHeading, cssLink)}
+  <h1 class="mb-4">${superHeading}</h1>
+  <ul class="list-group list-group-flush">
+    ${indexLinks.join('\n')}
+  </ul>
+  ${HTML_END(jsMainScript)}`;
 
-    const indexLinks = [];
-
-    fs.readdirSync(inputDir).forEach(file => {
-        if (file.endsWith('.md')) {
-            const filePath = path.join(inputDir, file);
-            const baseName = path.basename(file, '.md');
-            const tempFile = path.join(outputDir, `${baseName}_temp.html`);
-            const outputFile = path.join(outputDir, `${baseName}.html`);
-
-            const rawContent = fs.readFileSync(filePath, 'utf8');
-            const titleMatch = rawContent.match(/^#\s+(.+)/m);
-            const title = titleMatch ? titleMatch[1].trim() : baseName;
-
-            try {
-                execSync(`marked -o "${tempFile}" "${filePath}"`);
-            } catch (err) {
-                console.error(`Failed to convert ${filePath} with marked. Error: ${err.message}`);
-                return;
-            }
-
-            const htmlContent = fs.readFileSync(tempFile, 'utf8');
-            fs.unlinkSync(tempFile);
-
-            // Pass the determined links to the HTML parts
-            const finalHTML = `${HTML_START(title, superHeading, cssLink)}${htmlContent}${HTML_END(jsMainScript)}`;
-            fs.writeFileSync(outputFile, finalHTML, 'utf8');
-
-            console.log(`Converted ${file} -> ${outputFile}`);
-            indexLinks.push(`<li class="list-group-item">
-                      <a href="./${baseName}.html" class="text-decoration-none">${title}</a>
-                    </li>`);
-        }
-    });
-
-    // Generate index.html
-    const indexHTML = `${HTML_START(superHeading, superHeading, cssLink)}
-                  <h1 class="mb-4">${superHeading}</h1>
-                  <ul class="list-group list-group-flush">
-                    ${indexLinks.join('\n')}
-                  </ul>
-                  ${HTML_END(jsMainScript)}`;
-
-    fs.writeFileSync(path.join(outputDir, 'index.html'), indexHTML, 'utf8');
-    console.log(`Generated index.html in ${outputDir}`);
+  fs.writeFileSync(path.join(outputDir, 'index.html'), indexHTML, 'utf8');
+  console.log(`Generated index.html in ${outputDir}`);
 }
 
-main(); // Call the async main function
-
-/* =================== USAGE ===================
-
-Case 1: Run interactively (will prompt for all values, using defaults if left blank)
->>> node md-to-html.js
-
-Case 2: Provide some arguments via CLI, others will be prompted
->>> node md-to-html.js ./markdowns ./output_html
-
-Case 3: Provide all arguments via CLI (no prompts will appear)
-    - To use CDN for custom CSS/JS:
-    >>> node md-to-html.js ./markdowns ./output_html true "My Markdown Blog Posts"
-    - To use local assets for custom CSS/JS:
-    >>> node md-to-html.js ./markdowns ./output_html false ./BASE/assets "My Markdown Blog Posts"
-
-============================================= */
+main();
