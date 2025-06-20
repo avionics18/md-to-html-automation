@@ -98,9 +98,11 @@ Tables aren’t part of the core Markdown spec, but Hugo supports them out-of-th
 
 GIF is a bitmap image format.
 
-$H_2O$
+H~2~O
 
-$X_n + Y_n = Z_n$
+X~n~ + Y~n~ = Z~n~
+
+x^2^ + y^2^ = 1
 
 Press `CTRL`+`ALT`+`Delete` to end the session.
 

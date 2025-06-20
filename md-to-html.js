@@ -81,7 +81,7 @@ async function main() {
   }
 
   const HTML_START = (title, superHeading, cssLink) => `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -127,6 +127,11 @@ async function main() {
       </div>
     </div>
   </main>
+
+  <footer class="position-fixed bottom-0 start-50 translate-middle">
+    <a href="#" class="btn btn-primary btn-sm shadow-lg">&uarr;</a>
+  </footer>
+
   ${jsMainScript}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/bash.min.js" integrity="sha512-nQ9BQEzuov+Ry6EIH8ve7VKKdOG91Ix3SAQcFmOiBR5qG8sJONrph1InWTJOGjfP5QkSTSy4VnkEsPMoFYRsUQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
