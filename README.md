@@ -5,101 +5,131 @@
 ## Table of Contents
 
 1. [Usage](#usage)
-2. [Features](#features)
+    1. [Pre-requisite](#pre-requisite)
+    2. [Folder Structure](#folder-structure)
+    3. [Installing Neccessary Dependencies](#installing-neccessary-dependencies)
+    4. [Build Your HTML Website](#build-your-html-website)
+2. [Serve Your Website](#serve-your-website)
+3. [Features](#features)
 
 ## Usage
 
-**Pre-requisite**
+### Pre-requisite
 
-- You should have `Node.js` installed on your pc.
-- Install `marked` package globally - `npm i -g marked`.
-- Install `Browser-Sync` globally.
-- And the you're good to go!
+-   You should have `Node.js` installed on your pc.
+-   Install `Browser-Sync` or `Servor` package globally, if you want to view your html website on multiple devices.
+-   And the you're good to go!
 
+### Folder Structure
 
-#### Folder Structure
-
-Folder structure can be anyhting, as when you run the script it asks you all the things. Currently I am using the following folder structure for example:
+Folder structure can be anyhting because when you run the script it will ask you all the details. Currently I am using the following folder structure. I have my markdown notes in `notes/` folder and images in `imgs/` folder (**NOTE:** If you want to have images in markdown then it is mandatory to have all your images in `imgs/` folder, this is mandatory). And I have copied the `md-to-html.js` script from the repo.
 
 ```
-my-notes/
-├── markdowns/
-│   ├── 01-introduction.md
-│   ├── 02-installation.md
-│   ├── 03-create-server.md
-│   ├── 04-add-routes.md
-│   ├── 05-create-middlewares.md
-│   └── 06-connect-database.md
-└── md-to-html.js
+my-project/
+|-- md-to-html.js
+`-- notes/
+    |-- 01-introduction-to-cms.md
+    |-- 02-markdown-syntax.md
+    |-- 03-how-to-use-map-filter-reduce-in-js.md
+    `-- imgs/
+        `-- markdown-syntax-guide.jpg
 ```
 
-Each markdown file contains only basic markdown syntax. (*The output is styled using various css libraries.*). Example: `01-introduction.md` looks like below:
+### Installing Neccessary Dependencies
 
-```md
-# Introduction
+The first thing that you need to do is:
 
-Node.js has revolutionized the world of web development, enabling developers to build fast and scalable server-side applications using JavaScript. Whether you're a complete beginner or a front-end developer looking to explore back-end development, this step-by-step guide will introduce you to Node.js and help you get started. We'll cover the basics, set up your development environment, and create a simple Node.js application with detailed examples.
+1. Open terminal and go to `my-project/`.
 
-### What is Node.js?
+    ```sh
+    cd my-project
+    ```
 
-Node.js is an open-source, cross-platform JavaScript runtime environment that allows developers to run JavaScript code on the server side. It's built on the V8 JavaScript engine, which is the same engine used by Google Chrome. Node.js is designed to be lightweight, efficient, and non-blocking, making it ideal for building real-time, data-intensive applications.
+2. Initialize it as a npm project as we need some dependencies.
+
+    ```sh
+    npm init -y
+    ```
+
+3. Install the neccesary dependencies, you can check the dependencies in github repo's `package.json` dependencies or directly run the below code.
+
+    ```sh
+    npm i marked marked-gfm-heading-id
+    ```
+
+### Build Your HTML Website
+
+Once your project is ready - you follow the same folder structure as shown above and have installed all the neccessary dependencies. You're ready to build your html website using your markdown files.
+
+Open `package.json` and update the following settings:
+
+```json
+{
+    "type": "module",
+    "scripts": {
+        "build": "node md-to-html.js"
+    }
+}
 ```
 
-To run the command, make sure you're in your current project folder in the terminal:
+And in `md-to-html.js` file, you will find the `GLOBAL DEFAULTS` section. Update it according to your need, here we will update as per our above example.
+
+```js
+// ===== GLOBAL DEFAULTS =====
+const inputDirDefault = "notes";
+const outputDirDefault = "public";
+const superHeadingDefault = "My Project";
+```
+
+**Now we're ready to build our website.** Open your `my-project` folder in the terminal and run:
 
 ```sh
-cd my-notes/
+npm run build
 ```
 
-Run the `md-to-html.js` file using node:
-
-```sh
-node md-to-html.js
-```
-
-Then it ask you the following questions:
+The moment you type the above command it will run our `md-to-html.js` file will our default values. Thus, you don't need to enter anything just keep on pressing enter.
 
 ```
+> md-to-html-automation@1.0.0 build
+> node md-to-html.js
+
+
 --- Markdown to HTML Converter Setup ---
-Enter input directory for Markdown files (.): markdowns
-Enter output directory for HTML files (markdowns):
-Use CDN for custom CSS/JS (yes/no)? (yes):
-Enter super heading for your pages (Notes): Nodejs Masterclass
+Enter input directory for Markdown files (notes):
+Enter output directory for HTML files (public):
+Use inline CSS & JS (yes/no)? (yes):
+Enter super heading for your pages (My Project):
 ```
 
-You can also specify a different folder if you want your html files to be in a seperate folder.
-
-> **NOTE:** Use CDN should be always left blank that is it should always `yes` only if you are contributer and you have cloned this repo then only it will work. Otherwise for usage just use cdn.
-
-And it will automatically generate all your html files.
+And your website will be built.
 
 ```
---- Markdown to HTML Converter Setup ---
-Enter input directory for Markdown files (.): markdowns
-Enter output directory for HTML files (markdowns):
-Use CDN for custom CSS/JS (yes/no)? (yes):
-Enter super heading for your pages (Notes): Nodejs Masterclass
-
 --- Starting Conversion ---
-Input Directory: markdowns
-Output Directory: markdowns
-Use Custom CDN for style.css/main.js: true
-Super Heading: Nodejs Masterclass
+Input Directory: notes
+Output Directory: public
+Use inline css and js: true
+Super Heading: My Project
 ---------------------------
 
-Converted 01-introduction.md -> markdowns\01-introduction.html
-Converted 02-installation.md -> markdowns\02-installation.html
-Converted 03-create-server.md -> markdowns\03-create-server.html
-Converted 04-add-routes.md -> markdowns\04-add-routes.html
-Converted 05-create-middlewares.md -> markdowns\05-create-middlewares.html
-Converted 06-connect-database.md -> markdowns\06-connect-database.html
-Generated index.html in markdowns
+Copied 'imgs' folder to: public\imgs
+Converted 01-introduction-to-cms.md -> public\01-introduction-to-cms.html
+Converted 02-markdown-syntax.md -> public\02-markdown-syntax.html
+Converted 03-how-to-use-map-filter-reduce-in-js.md -> public\03-how-to-use-map-filter-reduce-in-js.html
+Generated index.html in public
 ```
 
-Now you can serve your files using `browser-sync` or `servor` or `live-server` package (it's your choice). *Recommended: Browser-Sync* [How to install & use browser-sync](https://browsersync.io/docs)
+**Badhai Ho!** (_Congrats_)
+
+## Serve Your Website
+
+### Locally
+
+Now you can serve your files using `browser-sync` or `servor` or `live-server` package (it's upto you).
+
+`Recommended: Browser-Sync` [How to install & use browser-sync](https://browsersync.io/docs)
 
 ```sh
-$ browser-sync markdowns
+$ browser-sync public
 [Browsersync] Access URLs:
  -------------------------------------
        Local: http://localhost:3000
@@ -108,12 +138,21 @@ $ browser-sync markdowns
           UI: http://localhost:3001
  UI External: http://localhost:3001
  -------------------------------------
-[Browsersync] Serving files from: C:\Users\Avite\Documents\Avinash\MASTER\md-to-html-automation\markdowns
+[Browsersync] Serving files from: C:\Users\Avite\Documents\Avinash\my-project\public
 ```
 
-Now if your pc and tablet are connected to the same network then you will be able to access your notes from tablet as well using the `External` url provided.
+One GREAT thing about browser sync about `browser-sync` is that it exposes the `port` to all the devices connected to the same network implies if your pc and tablet are connected to the same network then you will be able to access your notes website from tablet as well using the `External` url provided.
 
-![demo](demo.jpg)
+![demo](demo.png)
+
+### Globally over Internet
+
+Use these famous free hosting services:
+
+-   Github Pages
+-   Netlify
+
+you can view the live version of our demo project at [Demo](https://md-to-html-js.netlify.app).
 
 ## Features
 
@@ -125,3 +164,7 @@ Now if your pc and tablet are connected to the same network then you will be abl
 6. `<title>` is dynamic using the first heading in each markdown.
 7. Automatic code syntax highlighting, just mention the name of the language in the markdown after three backticks [Refer Markdown Cheatsheet](https://www.markdownguide.org/cheat-sheet/).
 8. Fully Responsive on all devices.
+
+## Todos Future
+
+-   In `BASE`, script for generating inline css and inline js.

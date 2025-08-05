@@ -1,14 +1,14 @@
-# Introduction
+# Introduction To CMS
 
 Static Site Generation (SSG) is a web development technique where a website's HTML pages are pre-built during the build process, rather than being dynamically generated on-demand by the server for each user request. This means that when a user visits a static website, the pre-built HTML, CSS, and JavaScript files are served directly to their browser without any server-side processing.
 
 **Headless CMS Examples to use with SSG:**
 
-- [Agility CMS](https://next-blog-agilitycms.vercel.app/)
-- [Builder.io CMS](https://cms-builder-io.vercel.app/)
-- [Butter CMS](https://next-blog-buttercms.vercel.app/)
-- [Contentful CMS](https://app-router-contentful.vercel.app/)
-- [Dato CMS](https://next-blog-datocms.vercel.app/)
+-   [Agility CMS](https://next-blog-agilitycms.vercel.app/)
+-   [Builder.io CMS](https://cms-builder-io.vercel.app/)
+-   [Butter CMS](https://next-blog-buttercms.vercel.app/)
+-   [Contentful CMS](https://app-router-contentful.vercel.app/)
+-   [Dato CMS](https://next-blog-datocms.vercel.app/)
 
 If a page uses Static Generation, the page HTML is generated at build time. That means in production, the page HTML is generated when you run `next build`. This HTML will then be reused on each request. It can be cached by a CDN.
 
@@ -20,10 +20,10 @@ By default, Next.js pre-renders pages using Static Generation without fetching d
 
 ```jsx
 function About() {
-  return <div>About</div>
+    return <div>About</div>;
 }
- 
-export default About
+
+export default About;
 ```
 
 Note that this page does not need to fetch any external data to be pre-rendered. In cases like this, Next.js generates a single HTML file per page during build time.
@@ -43,13 +43,13 @@ Some pages require fetching external data for pre-rendering. There are two scena
 // TODO: Need to fetch `posts` (by calling some API endpoint)
 //       before this page can be pre-rendered.
 export default function Blog({ posts }) {
-  return (
-    <ul>
-      {posts.map((post) => (
-        <li>{post.title}</li>
-      ))}
-    </ul>
-  )
+    return (
+        <ul>
+            {posts.map((post) => (
+                <li>{post.title}</li>
+            ))}
+        </ul>
+    );
 }
 ```
 

@@ -1,4 +1,4 @@
-# README
+# Markdown Syntax Guide For Beginners
 
 Sample article showcasing basic Markdown syntax and formatting for HTML elements.
 
@@ -39,23 +39,23 @@ The blockquote element represents content that is quoted from another source, op
 #### Blockquote with attribution
 
 > Don’t communicate by sharing memory, share memory by communicating.
-> 
+>
 > — Rob Pike
 
 # Tables
 
 Tables aren’t part of the core Markdown spec, but Hugo supports them out-of-the-box.
 
-|Name|Age|
-|-|-|
-|Bob|27|
-|Alice|23|
+| Name  | Age |
+| ----- | --- |
+| Bob   | 27  |
+| Alice | 23  |
 
 #### Inline Markdown within tables
 
-|Italics|Bold|Code|
-|-|-|-|
-|*italics*|**bold**|`code`|
+| Italics   | Bold     | Code   |
+| --------- | -------- | ------ |
+| _italics_ | **bold** | `code` |
 
 # List Types
 
@@ -67,26 +67,26 @@ Tables aren’t part of the core Markdown spec, but Hugo supports them out-of-th
 
 #### Unordered List
 
-*   List item
-*   Another item
-*   And another item
+-   List item
+-   Another item
+-   And another item
 
 #### Nested Unordered list
 
-*   Fruit
-    *   Apple
-    *   Orange
-    *   Banana
-*   Dairy
-    *   Milk
-    *   Cheese
+-   Fruit
+    -   Apple
+    -   Orange
+    -   Banana
+-   Dairy
+    -   Milk
+    -   Cheese
 
 #### Nested Ordered list
 
 1.  Fruit
-    *   Apple
-    *   Orange
-    *   Banana
+    -   Apple
+    -   Orange
+    -   Banana
 2.  Dairy
     1.  Milk
     2.  Cheese

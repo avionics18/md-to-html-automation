@@ -1,0 +1,33 @@
+{
+    "name": "md-to-html-automation",
+    "version": "1.0.0",
+    "description": "Easily convert your markdown notes into html websites.",
+    "main": "md-to-html.js",
+    "scripts": {
+        "build": "node md-to-html.js",
+        "serve": "servor public --browse",
+        "clean": "rm -rf public",
+        "lint": "eslint"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/avionics18/md-to-html-automation.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "module",
+    "bugs": {
+        "url": "https://github.com/avionics18/md-to-html-automation/issues"
+    },
+    "homepage": "https://github.com/avionics18/md-to-html-automation#readme",
+    "devDependencies": {
+        "@eslint/js": "^9.32.0",
+        "eslint": "^9.32.0",
+        "globals": "^16.3.0"
+    },
+    "dependencies": {
+        "marked": "^16.1.2",
+        "marked-gfm-heading-id": "^4.1.2"
+    }
+}
