@@ -9,6 +9,7 @@
     2. [Folder Structure](#folder-structure)
     3. [Installing Neccessary Dependencies](#installing-neccessary-dependencies)
     4. [Build Your HTML Website](#build-your-html-website)
+    5. [Build Using CLI (Alternative Mehtod)](#build-using-cli)
 2. [Serve Your Website](#serve-your-website)
 3. [Features](#features)
 
@@ -119,6 +120,14 @@ Generated index.html in public
 ```
 
 **Badhai Ho!** (_Congrats_)
+
+### Build Using CLI
+
+Alternatively you can also run from cli and pass arguments like below (In this it won't ask you any questions as you have passed all args):
+
+```sh
+node md-to-html.js notes dist true "#100Days_of_ML"
+```
 
 ## Serve Your Website
 
