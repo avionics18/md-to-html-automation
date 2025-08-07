@@ -126,7 +126,7 @@ Generated index.html in public
 Alternatively you can also run from cli and pass arguments like below (In this it won't ask you any questions as you have passed all args):
 
 ```sh
-node md-to-html.js notes dist true "#100Days_of_ML"
+node md-to-html.js notes dist "#100Days_of_ML" true
 ```
 
 ## Serve Your Website

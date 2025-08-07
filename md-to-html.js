@@ -40,9 +40,9 @@ function askQuestion(query, defaultValue) {
 async function main() {
     let inputDir = process.argv[2]; // path to input directory
     let outputDir = process.argv[3]; // path to output directory
-    let useInlineCli = process.argv[4]; // true or false for using inline css & js
-    let assetsDirCli = process.argv[5]; // path to assets directory if not using inline
-    let superHeading = process.argv[6]; // super heading for your notes
+    let superHeading = process.argv[4]; // super heading for your notes
+    let useInlineCli = process.argv[5]; // true or false for using inline css & js
+    let assetsDirCli = process.argv[6]; // path to assets directory if not using inline
 
     console.log("\n--- Markdown to HTML Converter Setup ---");
 
