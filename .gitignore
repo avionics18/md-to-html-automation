@@ -1,4 +1,6 @@
 **/node_modules
 .parcel-cache
+BASE/dist
+BASE/public
 html_notes
 public
